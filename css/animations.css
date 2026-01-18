@@ -1,0 +1,230 @@
+@import url('./variables.css');
+
+.lightning-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.lightning {
+  position: absolute;
+  width: 2px;
+  height: 100px;
+  background: linear-gradient(to bottom, 
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%);
+  opacity: 0;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  will-change: opacity, transform;
+}
+
+.lightning.active {
+  animation: lightningFlash 0.3s ease-out;
+}
+
+@keyframes lightningFlash {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  10% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  20% {
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1.5);
+  }
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.sparkle.active {
+  animation: sparklePop 0.6s ease-out;
+}
+
+@keyframes sparklePop {
+  0% {
+    opacity: 0;
+    transform: scale(0) translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) translateY(-20px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) translateY(-40px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.heart-trails-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+  background: transparent;
+}
+
+.glowing-heart {
+  filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.9))
+          drop-shadow(0 0 20px rgba(255, 20, 147, 0.7))
+          drop-shadow(0 0 30px rgba(255, 105, 180, 0.5));
+  animation: heartPulse 2s ease-in-out infinite;
+  will-change: filter, opacity, transform;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+@keyframes heartPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.9))
+            drop-shadow(0 0 20px rgba(255, 20, 147, 0.7))
+            drop-shadow(0 0 30px rgba(255, 105, 180, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(255, 105, 180, 1))
+            drop-shadow(0 0 25px rgba(255, 20, 147, 0.9))
+            drop-shadow(0 0 35px rgba(255, 105, 180, 0.7));
+  }
+}
+
+.floating-hearts-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.heart {
+  position: fixed;
+  font-size: 20px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  animation: floatHeart 3s ease-out forwards;
+  user-select: none;
+  will-change: opacity, transform;
+}
+
+@keyframes floatHeart {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-50px) scale(1.1) rotate(-5deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.5) rotate(10deg);
+  }
+}
+
+.particle-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.particle {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  animation: floatParticle 15s infinite linear;
+  will-change: transform, opacity;
+}
+
+@keyframes floatParticle {
+  0% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(100px);
+    opacity: 0;
+  }
+}
+
+.cursor-trail {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 182, 193, 0.6);
+  pointer-events: none;
+  z-index: 9999;
+  animation: fadeTrail 0.5s ease-out forwards;
+}
+
+@keyframes fadeTrail {
+  to {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
