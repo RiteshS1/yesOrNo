@@ -1,7 +1,3 @@
-/**
- * Lightning Effects Component
- */
-
 class LightningEffects {
   constructor() {
     this.container = null;

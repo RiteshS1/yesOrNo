@@ -1,7 +1,3 @@
-/**
- * Glowing Heart Trails Component
- */
-
 class HeartTrails {
   constructor() {
     this.container = null;

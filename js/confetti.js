@@ -1,7 +1,3 @@
-/**
- * Confetti Effects Component
- */
-
 class ConfettiEffects {
   constructor() {
     this.isLibraryLoaded = false;

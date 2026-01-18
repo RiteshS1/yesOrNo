@@ -10,7 +10,8 @@ body {
   width: 100%;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
   background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
   background-attachment: fixed;
@@ -18,6 +19,7 @@ body {
   overflow-x: hidden;
   font-family: 'Dancing Script', 'Great Vibes', 'Satisfy', cursive;
   padding: var(--spacing-md);
+  padding-top: calc(var(--spacing-md) + 60px);
 }
 
 body::before {
@@ -65,6 +67,8 @@ body::before {
   z-index: 1;
   opacity: 1;
   animation: fadeIn 0.8s ease-in;
+  margin: auto;
+  overflow: visible;
 }
 
 .container .tenor-gif-embed {
@@ -108,6 +112,7 @@ body::before {
   animation: fadeIn 0.4s ease-in 0.8s both;
   position: relative;
   min-height: 50px;
+  overflow: visible;
 }
 
 .btn a {
@@ -127,6 +132,12 @@ body::before {
   cursor: pointer;
   font-family: 'Dancing Script', 'Great Vibes', cursive;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+.btn a:visited {
+  color: var(--text-primary);
 }
 
 .btn a#move-random {
@@ -136,6 +147,8 @@ body::before {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  cursor: not-allowed !important;
+  pointer-events: auto;
 }
 
 .btn a::before {
@@ -163,6 +176,7 @@ body::before {
 
 .btn a:active {
   transform: translateY(0);
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 768px) {
@@ -197,6 +211,9 @@ body::before {
   .btn {
     flex-direction: column;
     position: relative;
+    width: 100%;
+    min-height: 60px;
+    overflow: visible;
   }
   
   .btn a {
@@ -208,5 +225,162 @@ body::before {
     width: auto;
     min-width: 100px;
     margin: 0 auto;
+  }
+}
+
+.music-player-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.music-player-toggle:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.music-player-toggle:active {
+  transform: scale(0.95);
+}
+
+.music-player-toggle.playing {
+  opacity: 0.6;
+}
+
+.headphone-icon {
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 600px;
+}
+
+.footer-left {
+  font-family: 'Dancing Script', cursive;
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.footer-right {
+  display: flex;
+  gap: 15px;
+}
+
+.social-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--text-primary);
+  transition: transform 0.3s ease, color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.social-icon:hover {
+  transform: scale(1.2);
+  color: var(--text-secondary);
+}
+
+.social-icon:active {
+  transform: scale(1);
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px var(--spacing-md);
+    margin-top: var(--spacing-lg);
+  }
+  
+  .music-player-toggle {
+    padding: 8px;
+    margin: 8px;
+  }
+  
+  .headphone-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .footer-left {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .music-player-toggle {
+    top: 15px;
+    right: 15px;
+    padding: 10px;
+    margin: 10px;
+  }
+  
+  .headphone-icon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .site-footer {
+    padding: 12px var(--spacing-sm);
+    margin-top: var(--spacing-md);
+  }
+  
+  .footer-left {
+    font-size: 0.85rem;
+  }
+  
+  .social-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .btn a#move-random {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 360px) {
+  .music-player-toggle {
+    padding: 12px;
+    margin: 12px;
+  }
+  
+  .headphone-icon {
+    width: 22px;
+    height: 22px;
   }
 }

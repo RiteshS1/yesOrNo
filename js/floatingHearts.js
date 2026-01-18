@@ -1,7 +1,3 @@
-/**
- * Floating Hearts Component
- */
-
 class FloatingHearts {
   constructor() {
     this.container = null;

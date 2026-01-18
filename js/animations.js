@@ -1,15 +1,10 @@
-/**
- * GSAP Animations Component
- */
-
 class PageAnimations {
   constructor() {
     this.timeline = null;
+    this.buttonListenersSetup = new WeakSet();
+    this.randomButtonElements = new WeakSet();
   }
 
-  /**
-   * Initialize page load animations
-   */
   initPageLoad() {
     const container = document.querySelector('.container');
     const gif = document.querySelector('.tenor-gif-embed');
@@ -80,9 +75,6 @@ class PageAnimations {
     }
   }
 
-  /**
-   * Animate text with word-by-word reveal
-   */
   animateTextReveal() {
     const h1 = document.querySelector('h1');
     if (!h1 || typeof gsap === 'undefined') return;
@@ -107,6 +99,9 @@ class PageAnimations {
     if (typeof gsap === 'undefined') return;
 
     document.querySelectorAll('.btn a').forEach(button => {
+      if (this.buttonListenersSetup.has(button)) return;
+      this.buttonListenersSetup.add(button);
+
       button.addEventListener('mouseenter', function() {
         gsap.to(this, {
           scale: 1.05,
@@ -123,7 +118,7 @@ class PageAnimations {
         });
       });
 
-      button.addEventListener('click', function(e) {
+      button.addEventListener('click', function() {
         gsap.to(this, {
           scale: 0.95,
           duration: 0.1,
@@ -135,62 +130,69 @@ class PageAnimations {
     });
   }
 
-  /**
-   * Initialize random button movement for finalNo state
-   */
   initRandomButtonMovement() {
     const moveRandom = document.querySelector("#move-random");
     if (!moveRandom) return;
+    
+    if (this.randomButtonElements.has(moveRandom)) {
+      return;
+    }
+    this.randomButtonElements.add(moveRandom);
 
     let isMoving = false;
+    let lastButtonMoveTime = 0;
+    const isMobile = window.innerWidth <= 768;
     const moveButton = (button) => {
-      if (isMoving) return;
+      const now = Date.now();
+      const throttleTime = isMobile ? 20 : 30;
+      if (isMoving && (now - lastButtonMoveTime < throttleTime)) return;
       isMoving = true;
+      lastButtonMoveTime = now;
       const container = document.querySelector('.container');
       if (!container) return;
 
       const containerRect = container.getBoundingClientRect();
       const buttonRect = button.getBoundingClientRect();
-      const btnContainer = button.closest('.btn');
       
-      // Get button container bounds if it exists
-      let btnContainerRect = btnContainer ? btnContainer.getBoundingClientRect() : containerRect;
+      let btnContainerRect = containerRect;
+      if (!isMobile) {
+        const btnContainer = button.closest('.btn');
+        btnContainerRect = btnContainer ? btnContainer.getBoundingClientRect() : containerRect;
+      }
       
-      // Get current button position relative to button container
       const currentLeft = buttonRect.left - btnContainerRect.left;
       const currentTop = buttonRect.top - btnContainerRect.top;
-      
-      // Calculate available space (accounting for padding and button size)
-      const padding = 15;
+      const padding = isMobile ? 5 : 15;
       const maxX = Math.max(0, btnContainerRect.width - buttonRect.width - padding);
       const maxY = Math.max(0, btnContainerRect.height - buttonRect.height - padding);
       
-      // Ensure we have valid dimensions
       if (maxX <= 0 || maxY <= 0) {
-        // Fallback: use container bounds
         const fallbackMaxX = Math.max(0, containerRect.width - buttonRect.width - padding);
         const fallbackMaxY = Math.max(0, containerRect.height - buttonRect.height - padding);
         
         if (fallbackMaxX <= 0 || fallbackMaxY <= 0) return;
         
-        // Use container bounds
         const newX = Math.random() * fallbackMaxX;
         const newY = Math.random() * fallbackMaxY;
         const deltaX = newX - (buttonRect.left - containerRect.left);
         const deltaY = newY - (buttonRect.top - containerRect.top);
         
+        const duration = isMobile ? 0.03 : 0.05;
         if (typeof gsap !== 'undefined') {
           gsap.to(button, {
             x: deltaX,
             y: deltaY,
-            duration: 0.3,
-            ease: 'power2.out'
+            duration: duration,
+            ease: 'power2.out',
+            onComplete: () => { 
+              isMoving = false;
+            }
           });
         } else {
           button.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-          button.style.transition = 'transform 0.3s ease-out';
+          button.style.transition = `transform ${duration}s ease-out`;
+          setTimeout(() => { isMoving = false; }, duration * 1000);
         }
-        setTimeout(() => { isMoving = false; }, 300);
         return;
       }
       
@@ -199,13 +201,16 @@ class PageAnimations {
       const deltaX = newX - currentLeft;
       const deltaY = newY - currentTop;
       
+      const duration = isMobile ? 0.03 : 0.05;
       if (typeof gsap !== 'undefined') {
         gsap.to(button, {
           x: deltaX,
           y: deltaY,
-          duration: 0.3,
+          duration: duration,
           ease: 'power2.out',
-          onComplete: () => { isMoving = false; }
+          onComplete: () => { 
+            isMoving = false;
+          }
         });
       } else {
         const currentTransform = window.getComputedStyle(button).transform;
@@ -221,68 +226,65 @@ class PageAnimations {
         }
         
         button.style.transform = `translate(${currentX + deltaX}px, ${currentY + deltaY}px)`;
-        button.style.transition = 'transform 0.3s ease-out';
-        setTimeout(() => { isMoving = false; }, 300);
+        button.style.transition = `transform ${duration}s ease-out`;
+        setTimeout(() => { isMoving = false; }, duration * 1000);
       }
     };
 
-    // Mouse events (desktop)
     moveRandom.addEventListener("mouseenter", function (e) {
+      e.preventDefault();
       moveButton(e.target);
     });
 
-    // Touch events (mobile)
-    let touchStartTime = 0;
-    let touchStartX = 0;
-    let touchStartY = 0;
-    
-    moveRandom.addEventListener("touchstart", function (e) {
-      touchStartTime = Date.now();
-      const touch = e.touches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-    }, { passive: true });
-
-    moveRandom.addEventListener("touchend", function (e) {
-      const touch = e.changedTouches[0];
-      const touchEndX = touch.clientX;
-      const touchEndY = touch.clientY;
-      const touchDuration = Date.now() - touchStartTime;
-      
-      // Calculate movement distance
-      const deltaX = Math.abs(touchEndX - touchStartX);
-      const deltaY = Math.abs(touchEndY - touchStartY);
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      
-      // If it's a quick tap (not a drag), move the button
-      if (touchDuration < 300 && distance < 10) {
-        e.preventDefault();
-        moveButton(e.target);
-      } else if (distance < 5) {
-        // Very small movement, treat as tap
-        e.preventDefault();
-        moveButton(e.target);
-      }
+    moveRandom.addEventListener("mouseover", function (e) {
+      e.preventDefault();
+      moveButton(e.target);
     });
 
-    // Also move on touchmove if user tries to drag
+    moveRandom.addEventListener("mousemove", function (e) {
+      e.preventDefault();
+      moveButton(e.target);
+    });
+
+    let lastTouchMoveTime = 0;
+    
+    moveRandom.addEventListener("touchstart", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      moveButton(e.target);
+    }, { passive: false });
+
     moveRandom.addEventListener("touchmove", function (e) {
-      // Move button away when user tries to touch it
-      const touch = e.touches[0];
-      const deltaX = Math.abs(touch.clientX - touchStartX);
-      const deltaY = Math.abs(touch.clientY - touchStartY);
+      e.preventDefault();
+      e.stopPropagation();
+      const now = Date.now();
       
-      if (deltaX > 5 || deltaY > 5) {
-        // User is trying to drag, move button away
+      if (now - lastTouchMoveTime > 10) {
         moveButton(e.target);
+        lastTouchMoveTime = now;
       }
-    }, { passive: true });
+    }, { passive: false });
+
+    moveRandom.addEventListener("touchend", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      moveButton(e.target);
+      return false;
+    }, { passive: false });
+
+    moveRandom.addEventListener("touchcancel", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      moveButton(e.target);
+    }, { passive: false });
   }
 
   animateNoButtons() {
     if (typeof gsap === 'undefined') return;
 
     document.querySelectorAll('.btn a[href*="state="], .btn a[href="#"]').forEach(button => {
+      if (this.buttonListenersSetup.has(button)) return;
+      
       button.addEventListener('mouseenter', function() {
         gsap.to(this, {
           x: Math.random() * 20 - 10,

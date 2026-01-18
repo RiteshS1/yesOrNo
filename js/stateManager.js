@@ -1,7 +1,3 @@
-/**
- * State Manager Component
- */
-
 class StateManager {
   constructor() {
     this.states = {
@@ -57,13 +53,13 @@ class StateManager {
   getNextStateUrl(currentState) {
     const config = this.getStateConfig(currentState);
     if (config.nextState) {
-      return `yesOrNo.html?state=${config.nextState}`;
+      return `?state=${config.nextState}`;
     }
-    return 'yesOrNo.html?state=yes';
+    return '?state=yes';
   }
 
   getYesUrl() {
-    return 'yesOrNo.html?state=yes';
+    return '?state=yes';
   }
 }
 

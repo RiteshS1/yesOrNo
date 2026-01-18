@@ -1,7 +1,3 @@
-/**
- * Particle Background Component
- */
-
 class ParticleBackground {
   constructor() {
     this.container = null;

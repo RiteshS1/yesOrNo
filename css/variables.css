@@ -1,5 +1,4 @@
 :root {
-  /* Colors */
   --bg-gradient-start: #ff9a9e;
   --bg-gradient-end: #fecfef;
   --card-bg: rgba(255, 255, 255, 0.25);
@@ -7,29 +6,19 @@
   --text-primary: #2d1b3d;
   --text-secondary: #5a3d5c;
   --button-bg: #fff;
-  --button-shadow: rgba(0, 0, 0, 0.2);
   
-  /* Spacing */
-  --spacing-xs: 0.5rem;
   --spacing-sm: 1rem;
   --spacing-md: 1.5rem;
   --spacing-lg: 2rem;
   --spacing-xl: 3rem;
   
-  /* Border radius */
-  --radius-sm: 0.5rem;
   --radius-md: 1rem;
   --radius-lg: 2rem;
   --radius-full: 9999px;
   
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
   
-  /* Transitions */
-  --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
-  --transition-slow: 0.5s ease;
 }
 
