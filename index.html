@@ -17,12 +17,30 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 <body>
-  <div id="app">
+  <div id="loading-screen" class="loading-screen">
+    <div class="loader-content">
+      <div class="rose-icon">🌹</div>
+      <div class="loader-text">say yes please...</div>
+      <div class="loader-progress">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="app-hidden">
     <div class="container">
       <template v-if="currentState === 'home'">
-        <div :key="'home-' + gifKey" class="tenor-gif-embed" data-postid="18967741" data-share-method="host" data-aspect-ratio="1" data-width="100%">
-          <a href="https://tenor.com/view/mikasa-gif-18967741">Mikasa GIF</a>from <a href="https://tenor.com/search/mikasa-gifs">Mikasa GIFs</a>
-        </div>
+        <video 
+          :key="'home-' + videoKey" 
+          :src="'./assets/home.mp4'"
+          class="state-video"
+          autoplay
+          loop
+          muted
+          playsinline
+          preload="auto"
+          aria-label="Home state video"
+        ></video>
         <h1>hey beautifulll</h1>
         <p>time to confess...</p>
         <p>dunno why but all i can think about is you</p>
@@ -36,13 +54,21 @@
         <div class="btn">
           <a href="#" @click.prevent="navigateToState('yes')">Yes</a>
           <a href="#" @click.prevent="navigateToState('firstNo')">No</a>
-    </div>
+        </div>
       </template>
 
       <template v-else>
-        <div :key="'state-' + currentState + '-' + gifKey" class="tenor-gif-embed" :data-postid="currentConfig.gifPostId" data-share-method="host" :data-aspect-ratio="currentConfig.gifAspectRatio" data-width="100%">
-          <a :href="'https://tenor.com/view/gif-' + currentConfig.gifPostId">GIF</a>from <a href="https://tenor.com">Tenor</a>
-        </div>
+        <video 
+          :key="'state-' + currentState + '-' + videoKey" 
+          :src="currentConfig.videoPath"
+          class="state-video"
+          autoplay
+          loop
+          muted
+          playsinline
+          preload="auto"
+          :aria-label="currentConfig.title + ' video'"
+        ></video>
         <h1>{{ currentConfig.title }}</h1>
         <p v-if="currentConfig.subtitle">{{ currentConfig.subtitle }}</p>
         <div class="btn" v-if="currentConfig.showButtons">
@@ -68,6 +94,7 @@
     })();
   </script>
   <script src="./js/stateManager.js"></script>
+  <script src="./js/videoPreloader.js"></script>
   <script src="./js/particleBackground.js"></script>
   <script src="./js/lightning.js"></script>
   <script src="./js/confetti.js"></script>

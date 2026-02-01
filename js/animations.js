@@ -7,7 +7,7 @@ class PageAnimations {
 
   initPageLoad() {
     const container = document.querySelector('.container');
-    const gif = document.querySelector('.tenor-gif-embed');
+    const video = document.querySelector('.state-video');
     const h1 = document.querySelector('h1');
     const p = document.querySelector('p');
     const btn = document.querySelector('.btn');
@@ -16,14 +16,14 @@ class PageAnimations {
 
     if (typeof gsap === 'undefined') {
       container.style.opacity = '1';
-      if (gif) gif.style.opacity = '1';
+      if (video) video.style.opacity = '1';
       if (h1) h1.style.opacity = '1';
       if (p) p.style.opacity = '1';
       if (btn) btn.style.opacity = '1';
       return;
     }
 
-    gsap.set([container, gif, h1, p, btn], { opacity: 0 });
+    gsap.set([container, video, h1, p, btn], { opacity: 0 });
     this.timeline = gsap.timeline();
 
     this.timeline.to(container, {
@@ -32,9 +32,9 @@ class PageAnimations {
       ease: 'power2.out'
     });
 
-    if (gif) {
-      gsap.set(gif, { scale: 0.5, opacity: 0 });
-      this.timeline.to(gif, {
+    if (video) {
+      gsap.set(video, { scale: 0.5, opacity: 0 });
+      this.timeline.to(video, {
         scale: 1,
         opacity: 1,
         duration: 0.6,

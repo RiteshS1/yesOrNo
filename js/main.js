@@ -1,6 +1,21 @@
 const { createApp } = Vue;
 
 class AppController {
+  static TIMING = {
+    MIN_LOAD_TIME: 3000,
+    STATE_CHANGE_DELAY: 50,
+    HOME_ANIMATION_DELAY: 400,
+    CONFETTI_DELAY: 1000,
+    TEXT_REVEAL_DELAY: 500,
+    RANDOM_BUTTON_DELAY: 300,
+    NO_BUTTON_DELAY: 200,
+    PAGE_LOAD_DELAY: 100,
+    LOADER_FADE_DURATION: 600,
+    APP_FADE_DELAY: 100,
+    GSAP_CHECK_TIMEOUT: 2000,
+    GSAP_CHECK_INTERVAL: 100
+  };
+
   constructor() {
     this.lightningEffects = null;
     this.confettiEffects = null;
@@ -10,6 +25,7 @@ class AppController {
     this.particleBackground = null;
     this.musicPlayer = null;
     this.stateManager = null;
+    this.videoPreloader = null;
     this.vueApp = null;
     this.buttonEffectsSetup = false;
   }
@@ -22,38 +38,94 @@ class AppController {
     }
   }
 
-  setup() {
-    this.stateManager = new StateManager();
-    this.particleBackground = new ParticleBackground();
-    this.particleBackground.init();
-    this.lightningEffects = new LightningEffects();
-    this.lightningEffects.init();
-    this.confettiEffects = new ConfettiEffects();
-    this.heartTrails = new HeartTrails();
-    this.heartTrails.init();
-    this.floatingHearts = new FloatingHearts();
-    this.floatingHearts.init();
-    this.pageAnimations = new PageAnimations();
-    this.musicPlayer = new MusicPlayer();
-    this.musicPlayer.init();
-    this.createFooter();
-    this.initVueApp();
-    
-    const checkGSAP = () => {
-      if (typeof gsap === 'undefined' && typeof window.gsap === 'undefined') {
-        if (Date.now() - this.startTime < 2000) {
-          setTimeout(checkGSAP, 100);
-          return;
+  async setup() {
+    try {
+      this.showLoader();
+      
+      this.stateManager = new StateManager();
+      this.videoPreloader = new VideoPreloader(this.stateManager);
+      
+      const progressBar = document.getElementById('progress-bar');
+      const loadStart = Date.now();
+      
+      await this.videoPreloader.preloadAllVideos((loaded, total) => {
+        const percent = (loaded / total) * 100;
+        if (progressBar) {
+          progressBar.style.width = `${percent}%`;
         }
-        console.warn('GSAP not loaded, using CSS animations');
+      });
+      
+      const elapsed = Date.now() - loadStart;
+      const remaining = AppController.TIMING.MIN_LOAD_TIME - elapsed;
+      if (remaining > 0) {
+        await new Promise(resolve => setTimeout(resolve, remaining));
       }
+      
+      this.particleBackground = new ParticleBackground();
+      this.particleBackground.init();
+      this.lightningEffects = new LightningEffects();
+      this.lightningEffects.init();
+      this.confettiEffects = new ConfettiEffects();
+      this.heartTrails = new HeartTrails();
+      this.heartTrails.init();
+      this.floatingHearts = new FloatingHearts();
+      this.floatingHearts.init();
+      this.pageAnimations = new PageAnimations();
+      this.musicPlayer = new MusicPlayer();
+      this.musicPlayer.init();
+      this.createFooter();
+      this.initVueApp();
+      
+      const checkGSAP = () => {
+        if (typeof gsap === 'undefined' && typeof window.gsap === 'undefined') {
+          if (Date.now() - this.startTime < AppController.TIMING.GSAP_CHECK_TIMEOUT) {
+            setTimeout(checkGSAP, AppController.TIMING.GSAP_CHECK_INTERVAL);
+            return;
+          }
+          console.warn('GSAP not loaded, using CSS animations');
+        }
 
-      this.pageAnimations.initPageLoad();
-      this.pageAnimations.initButtonAnimations();
-    };
+        this.pageAnimations.initPageLoad();
+        this.pageAnimations.initButtonAnimations();
+      };
 
-    this.startTime = Date.now();
-    checkGSAP();
+      this.startTime = Date.now();
+      checkGSAP();
+      
+      this.hideLoader();
+    } catch (error) {
+      console.error('Failed to initialize app:', error);
+      this.hideLoader();
+    }
+  }
+
+  showLoader() {
+    const loadingScreen = document.getElementById('loading-screen');
+    const app = document.getElementById('app');
+    if (loadingScreen) {
+      loadingScreen.style.display = 'flex';
+      loadingScreen.classList.remove('hidden');
+    }
+    if (app) {
+      app.style.opacity = '0';
+    }
+  }
+
+  hideLoader() {
+    const loadingScreen = document.getElementById('loading-screen');
+    const app = document.getElementById('app');
+    if (loadingScreen) {
+      loadingScreen.classList.add('hidden');
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+      }, AppController.TIMING.LOADER_FADE_DURATION);
+    }
+    if (app) {
+      setTimeout(() => {
+        app.style.opacity = '1';
+        app.style.transition = 'opacity 0.6s ease-in';
+      }, AppController.TIMING.APP_FADE_DELAY);
+    }
   }
 
   initVueApp() {
@@ -65,7 +137,7 @@ class AppController {
       data() {
         return {
           currentState: initialState,
-          gifKey: 0
+          videoKey: 0
         };
       },
       computed: {
@@ -79,29 +151,21 @@ class AppController {
       watch: {
         currentState(newState, oldState) {
           if (newState !== oldState) {
-            this.gifKey++;
+            this.videoKey++;
             setTimeout(() => {
               this.$nextTick(() => {
-                this.$nextTick(() => {
-                  appController.handleStateChange(newState);
-                });
+                appController.handleStateChange(newState);
               });
-            }, 50);
+            }, AppController.TIMING.STATE_CHANGE_DELAY);
           }
         },
         currentConfig: {
           handler(newConfig, oldConfig) {
-            const newId = newConfig ? newConfig.gifPostId : null;
-            const oldId = oldConfig ? oldConfig.gifPostId : null;
+            const newPath = newConfig ? newConfig.videoPath : null;
+            const oldPath = oldConfig ? oldConfig.videoPath : null;
             
-            if (newId && newId !== oldId) {
-              setTimeout(() => {
-                this.$nextTick(() => {
-                  this.$nextTick(() => {
-                    appController.reloadTenorGif();
-                  });
-                });
-              }, 150);
+            if (newPath && newPath !== oldPath) {
+              this.videoKey++;
             }
           },
           deep: true,
@@ -123,10 +187,8 @@ class AppController {
       },
       mounted() {
         this.$nextTick(() => {
-          this.$nextTick(() => {
-            appController.handleStateChange(this.currentState);
-            appController.setupButtonEffects();
-          });
+          appController.handleStateChange(this.currentState);
+          appController.setupButtonEffects();
         });
         
         window.addEventListener('popstate', () => {
@@ -143,21 +205,14 @@ class AppController {
   handleStateChange(state) {
     if (state === 'home') {
       setTimeout(() => {
-        this.reloadTenorGif();
-      }, 100);
-      setTimeout(() => {
         this.pageAnimations.initPageLoad();
         this.pageAnimations.initButtonAnimations();
-      }, 400);
+      }, AppController.TIMING.HOME_ANIMATION_DELAY);
       return;
     }
 
     const config = this.stateManager.getStateConfig(state);
     if (!config) return;
-
-    setTimeout(() => {
-      this.reloadTenorGif();
-    }, 100);
 
     if (config.triggerConfetti) {
       setTimeout(() => {
@@ -183,71 +238,27 @@ class AppController {
         }
         
         this.floatingHearts.createBurst(50, 30, 15);
-      }, 1000);
+      }, AppController.TIMING.CONFETTI_DELAY);
 
       setTimeout(() => {
         this.pageAnimations.animateTextReveal();
-      }, 500);
+      }, AppController.TIMING.TEXT_REVEAL_DELAY);
     }
 
     if (config.randomButton) {
       setTimeout(() => {
         this.pageAnimations.initRandomButtonMovement();
-      }, 300);
+      }, AppController.TIMING.RANDOM_BUTTON_DELAY);
     } else {
       setTimeout(() => {
         this.pageAnimations.animateNoButtons();
-      }, 200);
+      }, AppController.TIMING.NO_BUTTON_DELAY);
     }
     
     setTimeout(() => {
       this.pageAnimations.initPageLoad();
       this.pageAnimations.initButtonAnimations();
-    }, 100);
-  }
-
-  reloadTenorGif() {
-    const attemptReload = (retryCount = 0) => {
-      const gifContainer = document.querySelector('.tenor-gif-embed');
-      
-      if (!gifContainer) {
-        if (retryCount < 5) {
-          setTimeout(() => attemptReload(retryCount + 1), 100);
-        }
-        return;
-      }
-
-      const existingIframe = gifContainer.querySelector('iframe');
-      if (existingIframe) {
-        existingIframe.remove();
-      }
-
-      const existingScript = document.querySelector('script[src*="tenor.com/embed.js"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-
-      if (window.tg && window.tg.slugs) {
-        window.tg.slugs = {};
-      }
-
-      setTimeout(() => {
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.async = true;
-        script.src = 'https://tenor.com/embed.js';
-        script.onload = () => {
-          if (window.tg && typeof window.tg.scan === 'function') {
-            setTimeout(() => {
-              window.tg.scan();
-            }, 100);
-          }
-        };
-        document.body.appendChild(script);
-      }, 200);
-    };
-
-    attemptReload();
+    }, AppController.TIMING.PAGE_LOAD_DELAY);
   }
 
   setupButtonEffects() {

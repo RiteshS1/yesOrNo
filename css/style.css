@@ -71,14 +71,17 @@ body::before {
   overflow: visible;
 }
 
-.container .tenor-gif-embed {
+.container .state-video {
   max-width: 250px;
   width: 100%;
+  height: auto;
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-md);
   opacity: 1;
   animation: fadeIn 0.6s ease-in 0.2s both;
+  object-fit: contain;
+  background: #000;
 }
 
 .container h1 {
@@ -189,7 +192,7 @@ body::before {
     gap: var(--spacing-md);
   }
   
-  .container .tenor-gif-embed {
+  .container .state-video {
     max-width: 200px;
   }
   
@@ -383,4 +386,74 @@ body::before {
     width: 22px;
     height: 22px;
   }
+}
+
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.6s ease-out;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-content {
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.rose-icon {
+  font-size: 4rem;
+  animation: pulse 1.5s ease-in-out infinite;
+  margin-bottom: var(--spacing-md);
+}
+
+.loader-text {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-family: 'Dancing Script', cursive;
+  margin-bottom: var(--spacing-lg);
+  opacity: 0.9;
+}
+
+.loader-progress {
+  width: 200px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff9a9e, #fecfef, #ffd1dc);
+  width: 0%;
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.app-hidden {
+  opacity: 0;
 }
