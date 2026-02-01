@@ -1,33 +1,62 @@
 class ConfettiEffects {
+  static CONFETTI_COLORS = [
+    '#ff9a9e', '#fecfef', '#ffd1dc', '#ffb6c1', 
+    '#ffffff', '#ffc0cb', '#ff69b4', '#ff1493'
+  ];
+
+  static CONTINUOUS_COLORS = ['#ff9a9e', '#fecfef', '#ffd1dc', '#ffb6c1', '#ffffff'];
+
   constructor() {
     this.isLibraryLoaded = false;
     this.continuousInterval = null;
-    this.checkLibrary();
+    this.loadPromise = null;
+    this.CHECK_INTERVAL = 50;
+    this.MAX_CHECK_DURATION = 5000;
+    this.initLibraryCheck();
   }
 
-  checkLibrary() {
+  initLibraryCheck() {
     if (typeof confetti !== 'undefined') {
       this.isLibraryLoaded = true;
-    } else {
-      setTimeout(() => {
-        if (typeof confetti !== 'undefined') {
-          this.isLibraryLoaded = true;
-        }
-      }, 100);
-    }
-  }
-
-  trigger() {
-    if (!this.isLibraryLoaded && typeof confetti === 'undefined') {
-      console.warn('canvas-confetti library not loaded');
       return;
     }
 
-    const colors = [
-      '#ff9a9e', '#fecfef', '#ffd1dc', '#ffb6c1', 
-      '#ffffff', '#ffc0cb', '#ff69b4', '#ff1493'
-    ];
-    
+    this.loadPromise = new Promise((resolve) => {
+      const startTime = Date.now();
+      const checkInterval = setInterval(() => {
+        if (typeof confetti !== 'undefined') {
+          this.isLibraryLoaded = true;
+          clearInterval(checkInterval);
+          resolve();
+        } else if (Date.now() - startTime > this.MAX_CHECK_DURATION) {
+          clearInterval(checkInterval);
+          console.warn('Confetti library failed to load after timeout');
+          resolve(false);
+        }
+      }, this.CHECK_INTERVAL);
+    });
+  }
+
+  async ensureLibrary() {
+    if (this.isLibraryLoaded || typeof confetti !== 'undefined') {
+      this.isLibraryLoaded = true;
+      return true;
+    }
+
+    if (this.loadPromise) {
+      await this.loadPromise;
+      return this.isLibraryLoaded;
+    }
+
+    return false;
+  }
+
+  async trigger() {
+    if (!(await this.ensureLibrary())) {
+      return;
+    }
+
+    const colors = ConfettiEffects.CONFETTI_COLORS;
     const duration = 5000;
     const end = Date.now() + duration;
 
@@ -102,11 +131,11 @@ class ConfettiEffects {
     }, 2000);
   }
 
-  startContinuous(duration = 10000) {
-    if (typeof confetti === 'undefined') return;
+  async startContinuous(duration = 10000) {
+    if (!(await this.ensureLibrary())) return;
     
     const end = Date.now() + duration;
-    const colors = ['#ff9a9e', '#fecfef', '#ffd1dc', '#ffb6c1', '#ffffff'];
+    const colors = ConfettiEffects.CONTINUOUS_COLORS;
     
     const frame = () => {
       confetti({
@@ -137,14 +166,14 @@ class ConfettiEffects {
     }
   }
 
-  triggerFromButton(button) {
-    if (typeof confetti === 'undefined') return;
+  async triggerFromButton(button) {
+    if (!(await this.ensureLibrary())) return;
     
     const rect = button.getBoundingClientRect();
     const x = (rect.left + rect.width / 2) / window.innerWidth;
     const y = (rect.top + rect.height / 2) / window.innerHeight;
     
-    const colors = ['#ff9a9e', '#fecfef', '#ffd1dc', '#ffb6c1', '#ffffff'];
+    const colors = ConfettiEffects.CONTINUOUS_COLORS;
     
     confetti({
       particleCount: 100,
@@ -156,11 +185,11 @@ class ConfettiEffects {
     });
   }
 
-  createShower(duration = 3000) {
-    if (typeof confetti === 'undefined') return;
+  async createShower(duration = 3000) {
+    if (!(await this.ensureLibrary())) return;
     
     const end = Date.now() + duration;
-    const colors = ['#ff9a9e', '#fecfef', '#ffd1dc', '#ffb6c1', '#ffffff'];
+    const colors = ConfettiEffects.CONTINUOUS_COLORS;
     
     const frame = () => {
       for (let i = 0; i < 5; i++) {

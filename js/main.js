@@ -161,8 +161,8 @@ class AppController {
 
     if (config.triggerConfetti) {
       setTimeout(() => {
-        this.confettiEffects.trigger();
-        this.confettiEffects.startContinuous(15000);
+        this.confettiEffects.trigger().catch(err => console.warn('Confetti trigger failed:', err));
+        this.confettiEffects.startContinuous(15000).catch(err => console.warn('Confetti continuous failed:', err));
         
         for (let i = 0; i < 5; i++) {
           setTimeout(() => {
@@ -254,14 +254,14 @@ class AppController {
     if (this.buttonEffectsSetup) return;
     this.buttonEffectsSetup = true;
 
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', async (e) => {
       const button = e.target.closest('.btn a');
       if (!button) return;
 
       const isYesButton = button.textContent.trim().toLowerCase() === 'yes';
       
       if (isYesButton) {
-        this.confettiEffects.triggerFromButton(button);
+        await this.confettiEffects.triggerFromButton(button);
       }
       
       this.heartTrails.createOnButtonClick(button);

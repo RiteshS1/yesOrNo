@@ -9,13 +9,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Satisfy&display=swap" rel="stylesheet">
-  
+
   <link rel="stylesheet" href="./css/style.css" />
   <link rel="stylesheet" href="./css/animations.css" />
   
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </head>
 <body>
   <div id="app">
@@ -37,7 +36,7 @@
         <div class="btn">
           <a href="#" @click.prevent="navigateToState('yes')">Yes</a>
           <a href="#" @click.prevent="navigateToState('firstNo')">No</a>
-        </div>
+    </div>
       </template>
 
       <template v-else>
@@ -55,6 +54,19 @@
     </div>
   </div>
 
+  <script src="./js/scriptLoader.js"></script>
+  <script>
+    (async function() {
+      try {
+        await ScriptLoader.loadWithFallback(
+          'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js',
+          'https://unpkg.com/canvas-confetti@1.9.2/dist/confetti.browser.min.js'
+        );
+      } catch (error) {
+        console.error('Failed to load confetti library from all sources:', error);
+      }
+    })();
+  </script>
   <script src="./js/stateManager.js"></script>
   <script src="./js/particleBackground.js"></script>
   <script src="./js/lightning.js"></script>
